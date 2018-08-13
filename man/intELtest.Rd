@@ -4,9 +4,9 @@
 \alias{intELtest}
 \title{The integrated likelihood ratio test}
 \usage{
-intELtest(data, g1 = 1, t1 = 0, t2 = Inf, sided = 2, nboot = 1000,
-  wt = "p.event", alpha = 0.05, compo = FALSE, seed = 1011,
-  nlimit = 200)
+intELtest(data, g1 = 1, t1 = 0, t2 = Inf, sided = 2,
+  nboot = 1000, wt = "p.event", alpha = 0.05, compo = FALSE,
+  seed = 1011, nlimit = 200)
 }
 \arguments{
 \item{data}{a data frame/matrix with 3 columns. The first column is
@@ -14,8 +14,7 @@ the survival time. The second is the censoring indicator. The last is
 the grouping variable. An example as the input to \code{data} provided is
 \code{\link{hepatitis}}.}
 
-\item{g1}{the group with the longer survival that
-should take a value from the third column of \code{data}}
+\item{g1}{the group with longer survival in one-sided testing with the default value of \eqn{1}.}
 
 \item{t1}{pre-specified \eqn{t_1} based on domain knowledge
 with the default value of \eqn{0}}
@@ -24,32 +23,34 @@ with the default value of \eqn{0}}
 with the default value of \eqn{\infty}}
 
 \item{sided}{2 if two-sided test, and 1 if one-sided test.
-It assumes the default value of 2.}
+It assumes the default value of \eqn{2}.}
 
-\item{nboot}{number of bootstrap replications in calculating critical values}
+\item{nboot}{number of bootstrap replications in calculating critical values
+with the defualt value of \eqn{1000}.}
 
 \item{wt}{a string for the integral statistic with a specific weight function.
-There are four types of integral statistics provided: \code{"p.event"}, \code{"dt"},
-\code{"db"}, and \code{"dF"}. See 'Details' for more about the integral statistics.}
+There are four types of integral statistics provided: \code{"p.event"}, \code{"dF"},
+\code{"dt"}, and \code{"db"}. It assumes the default value of \code{"p.event"}. See 'Details' for more about the integral statistics.}
 
-\item{alpha}{pre-specified significance level of the test}
+\item{alpha}{pre-specified significance level of the test with the default value of \eqn{0.05}}
 
-\item{compo}{A logical value specifying whether to change the local statistics at time points 
-outside the overlapping region of the two samples. The default is FALSE. TRUE if uses a 
-functional of the difference between the Kaplan--Meier estimators (see "Details" for more).}
+\item{compo}{FALSE if taking the standardized square of the difference as the local statisic
+for two-sided testing, and TRUE if constructing for one-sided testing, but only the positive
+part of the difference included. It assumes the default value of \eqn{FALSE}.}
 
-\item{seed}{the parameter to \code{\link[=Random]{set.seed}} for the random number generator in \R.
+\item{seed}{the parameter with the default value of \eqn{1011} to \code{\link[=Random]{set.seed}} for 
+generating bootstrap-based critical values in \R.
 The \code{set.seed} is used implicitly in \code{intELtest}.}
 
-\item{nlimit}{the splitting unit. To deal with large data problems, the bootstrap algorithm is
+\item{nlimit}{the splitting unit with the default value of \eqn{200}. To deal with large data problems, the bootstrap algorithm is
 to split the number of bootstrap replicates into \code{nsplit} parts. The number \code{nsplit}
 is the smallest integer not less than \eqn{\left\| U\right\|/}\code{nlimit}.}
 }
 \value{
 \code{intELtest} returns a list with three elements:
 \itemize{
-   \item \code{critval} the critical value
    \item \code{teststat} the resulting integrated test statistic
+   \item \code{critval} the critical value
    \item \code{pvalue} the p-value based on the integrated statistic
 }
 }
@@ -67,45 +68,41 @@ where \eqn{w_1,...,w_h} are the values of the weight function evaluated at
 the distinct ordered uncensored times \eqn{t_1,...,t_h} in \eqn{U}.
 There are four types of weight functions considered.
 \itemize{
-   \item (\code{wt = "dt"}) \cr
-     By means of an extension of the integral statistic derived by Pepe and Fleming (1989),
-     \deqn{w_i=\left\{\begin{array}{ll}t_{i+1}-t_i & \textrm{if }i\neq h\\ 0 & \textrm{if }i=h\end{array}\right.}
-   \item (\code{wt = "p.event"}) \cr
-     According to the integral statistic derived by Uno et al. (2013):
-     \deqn{w_i=\frac{1}{n_1+n_2},}
-     where \eqn{n_1} and \eqn{n_2} are the sample sizes of each group.
-     The role of \eqn{w_i} assigns equal weight \eqn{1/n} to each observation when no
-     tie is involved (\eqn{n = n_1 + n_2}); otherwise, it assigns heavy weight to
-     the observations with multiplicity.
+    \item (\code{wt = "p.event"}) \cr
+     This default option is an objective weight,
+     \deqn{w_i=\frac{d_i}{n}}
+     In other words, this \eqn{w_i} assigns weight proportional to the number of events
+     at each observed uncensored time \eqn{t_i}.
    \item (\code{wt = "dF"}) \cr
-     Based on the integral statistic built by Barmi and McKeague (2013),
-     the weight function is the derivative of the empirical distribution function \eqn{\hat{F}(t)}. 
-     \deqn{w_i=\left.{\frac{d\hat{F}(t)}{dt}}\right|_{t=t_i}}
-     This is an empirical version of taking expectation.
+     Based on the integral statistic built by Barmi and McKeague (2013), another weigth function is 
+     \deqn{w_i= \hat{F}(t_i)-\hat{F}(t_{i-1})}
+     for \eqn{i=1,\ldots,m},where \eqn{\hat{F}(t)=1-\hat{S}(t)}, \eqn{\hat{S}(t)} is the pooled KM estimator, and \eqn{t_0 \equiv 0}. 
+     This reduces to the objective weight when there is no censoring.The resulting \eqn{I_n} can be seen as an empirical 
+     version of \eqn{E(-2\log\mathcal{R}(T))}, where \eqn{T} denotes the lifetime random variable of interest distributed 
+     as the common distribution under \eqn{H_0}.
+   \item (\code{wt = "dt"}) \cr
+     By means of an extension of the integral statistic derived by Pepe and Fleming (1989), another weight function is 
+     \deqn{w_i= t_{i+1}-t_i} 
+     for \eqn{i=1,\ldots,m}, where \eqn{t_{m+1} \equiv t_{m}}. This gives more weight to the time intervals where 
+     there are fewer observed uncensored times, but may be affected by extreme observations. 
    \item (\code{wt = "db"}) \cr
-     The weight function is of the form:
-     \deqn{w_i=\left.\frac{d\hat{b}(t)}{dt}\right|_{t=t_i}}
-     with \eqn{\hat{b}(t)=\hat{\sigma}^2(t)/(1+\hat{\sigma}^2(t))}.
-     The \eqn{\hat{b}(t)} is chosen so that the limiting distribution
-     \deqn{\int^{x_2}_{x_1}\frac{B^2_+(x)}{x(1 - x)}dx}
-     is the same as the asymptotic null distribution in Barmi and McKeague (2013) with the
-     \eqn{[x_1, x_2]} restriction.
+     According to a weigthing method mentioned in Chang and McKeague (2016), the other weight function is
+     \deqn{w_i= \hat{b}(t_i)-\hat{b}(t_{i-1})}
+     where \eqn{\hat{b}(t)=\hat{\sigma}^2(t)/(1+\hat{\sigma}^2(t))}, and \eqn{\hat{\sigma}^2(t)} is given.
+     The \eqn{\hat{b}(t)} is chosen so that the limiting distribution is the same as the asymptotic null 
+     distribution in EL Barmi and McKeague (2013).
 }
-For time points outside the overlapping region of the two samples, we also consider an alternative local statistic 
-by taking a functional of the difference between the KM estimators inspired by Pepe and Fleming (1989). Here we 
-take a standardized square of the difference for two-sided testing and the positive part of that for one-sided testing, 
-inspired from the self-studentization property of EL.
 }
 \examples{
 library(EL2Surv)
-intELtest(hepatitis, 1, sided = 2, wt = "p.event")
+intELtest(hepatitis)
 
 ## OUTPUT:
+## $teststat
+## [1] 1.406016
+## 
 ## $critval
 ## [1] 0.8993514
-## 
-## $teststat
-## [1] 1.406029
 ## 
 ## $pvalue
 ## [1] 0.012
@@ -113,9 +110,9 @@ intELtest(hepatitis, 1, sided = 2, wt = "p.event")
 }
 \references{
 \itemize{
-   \item H. W. Chang, "Empirical likelihood tests for stochastic
-     ordering based on censored and biased data," \emph{Columbia University Academic Commons} (2014).
-     \url{http://academiccommons.columbia.edu/catalog/ac\%3A177230}
+   \item H.-w. Chang and I. W. McKeague, "Empirical likelihood based tests 
+     for stochastic ordering under right censorship," \emph{Electronic Journal of Statistics},
+     Vol. 10, No. 2, pp. 2511-2536 (2016).
    \item M. S. Pepe and T. R. Fleming, "Weighted Kaplan-Meier
      Statistics: A Class of Distance Tests for Censored Survival Data," \emph{Biometrics},
      Vol. 45, No. 2, pp. 497-507 (1989).

@@ -24,7 +24,7 @@ hepatitis
 The data frame \code{hepatitis} is obtained by digitizing the published
 Kaplan-Meier curves in Nguyen-Khac et al (2011). The method of digitizing is described in
 Guyot et al. (2012).
-See \code{\link{intELtest}} and \code{\link{supELtest}} for the application.
+See \code{\link{intELtest}} and \code{\link{ptwiseELtest}} for the application.
 }
 \references{
 P. Guyot, A. E. Ades, M. J. N. M. Ouwens, and N. J. Welton,
@@ -33,6 +33,6 @@ from published Kaplan-Meier survival curves," \emph{BMC Medical Research Methodo
 12(1):9. \url{http://bmcmedresmethodol.biomedcentral.com/articles/10.1186/1471-2288-12-9}
 }
 \seealso{
-\code{\link{intELtest}}, \code{\link{supELtest}}
+\code{\link{intELtest}}, \code{\link{ptwiseELtest}}
 }
 \keyword{datasets}

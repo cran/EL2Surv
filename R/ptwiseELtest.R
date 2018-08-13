@@ -8,19 +8,23 @@
 #' the survival time. The second is the censoring indicator. The last is
 #' the grouping variable. An example as the input to \code{data} provided is
 #' \code{\link{hepatitis}}.
-#' @param g1 the group with the longer survival that
-#' should take a value from the third column of \code{data}
+#' @param g1 the group with longer survival in one-sided testing with the default value of \eqn{1}.
 #' @param t1 pre-specified \eqn{t_1} based on domain knowledge
 #' with the default value of \eqn{0}
 #' @param t2 pre-specified \eqn{t_2} based on domain knowledge
 #' with the default value of \eqn{\infty}
 #' @param sided 2 if two-sided test, and 1 if one-sided test.
-#' It assumes the default value of 2.
+#' It assumes the default value of \eqn{2}.
 #' @param nboot number of bootstrap replications in calculating critical values
-#' @param alpha pre-specified significance level of the test
-#' @param seed the parameter to \code{\link[=Random]{set.seed}} for the random number generator in \R.
-#' The \code{set.seed} is used implicitly in \code{supELtest}.
-#' @param nlimit the splitting unit. To deal with large data problems, the bootstrap algorithm is
+#' with the defualt value of \eqn{1000}.
+#' @param alpha pre-specified significance level of the test with the default value of \eqn{0.05}
+#' @param compo FALSE if taking the standardized square of the difference as the local statisic
+#' for two-sided testing, and TRUE if constructing for one-sided testing, but only the positive
+#' part of the difference included. It assumes the default value of \eqn{FALSE}.
+#' @param seed the parameter with the default value of \eqn{1011} to \code{\link[=Random]{set.seed}} for 
+#' generating bootstrap-based critical values in \R.
+#' The \code{set.seed} is used implicitly in \code{intELtest}.
+#' @param nlimit the splitting unit with the default value of \eqn{200}. To deal with large data problems, the bootstrap algorithm is
 #' to split the number of bootstrap replicates into \code{nsplit} parts. The number \code{nsplit}
 #' is the smallest integer not less than \eqn{\left\| U\right\|/}\code{nlimit}.
 #' @return \code{ptwiseELtest} returns a list with four elements:
@@ -31,14 +35,14 @@
 #'    specific day if the decision exhibits 1 and not rejected if otherwise
 #'    \item \code{critval_ptwise} the critical values of the statistic at each uncensored time point
 #' }
-#' @references H. W. Chang, "Empirical likelihood tests for stochastic
-#' ordering based on censored and biased data," \emph{Columbia University Academic Commons} (2014).
-#' \url{http://academiccommons.columbia.edu/catalog/ac\%3A177230}
+#' @references H.-w. Chang and I. W. McKeague, "Empirical likelihood based tests 
+#' for stochastic ordering under right censorship," \emph{Electronic Journal of Statistics},
+#' Vol. 10, No. 2, pp. 2511-2536 (2016).
 #' @seealso \code{\link{hepatitis}}, \code{\link{intELtest}}, \code{\link{supELtest}}
 #' @examples
 #' library(EL2Surv)
 #' ptwiseELtest(hepatitis)
-#' ## It produces the estimates on 47 distinct uncensored days
+#' ## It produces the estimates on 44 distinct uncensored days
 #' ## out of 57 possibly repeated uncensored days.
 #' 
 #' ptwiseELtest(hepatitis, t1 = 30, t2 = 60)
